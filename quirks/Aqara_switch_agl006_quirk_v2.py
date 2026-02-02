@@ -30,15 +30,41 @@ from zhaquirks.const import (
     BUTTON_4,
 )
 from zhaquirks.xiaomi import XiaomiAqaraE1Cluster
+from zhaquirks.xiaomi.aqara.opple_switch import MultistateInputCluster
 
+class AqaraOperationMode(types.enum8):
+    """Aqara operation mode attribute values."""
+    Decoupled = 0x00
+    Relay = 0x01
 
 # ---------------------------------------------------------------------
-# Manufacturer specific cluster (0xFCC0)
+# Aqara manufacturer-specific cluster (0xFCC0)
 # ---------------------------------------------------------------------
 class AqaraManuSpecificCluster(XiaomiAqaraE1Cluster):
     """Aqara manufacturer-specific cluster for H2 switch."""
 
     class AttributeDefs(XiaomiAqaraE1Cluster.AttributeDefs):
+        operation_mode = ZCLAttributeDef(
+            id=0x0200,
+            type=AqaraOperationMode,
+            zcl_type=DataTypeId.uint8,
+            access="rw",
+            is_manufacturer_specific=True
+        )
+        led_indicator = ZCLAttributeDef(
+            id=0x0203,
+            type=types.uint8_t,
+            zcl_type=DataTypeId.uint8,
+            access="rw",
+            is_manufacturer_specific=True
+        )
+        flip_led_indicator = ZCLAttributeDef(
+            id=0x00F0,
+            type=types.uint8_t,
+            zcl_type=DataTypeId.uint8,
+            access="rw",
+            is_manufacturer_specific=True
+        )
         lock_relay = ZCLAttributeDef(
             id=0x0285,
             type=types.uint8_t,
@@ -46,7 +72,6 @@ class AqaraManuSpecificCluster(XiaomiAqaraE1Cluster):
             access="rw",
             is_manufacturer_specific=True,
         )
-
         multi_click = ZCLAttributeDef(
             id=0x0286,
             type=types.uint8_t,
@@ -68,8 +93,8 @@ class AqaraManuSpecificCluster(XiaomiAqaraE1Cluster):
     .adds_endpoint(2, device_type=zha.DeviceType.ON_OFF_SWITCH)  # Relay + Button 2
     .adds_endpoint(3, device_type=zha.DeviceType.ON_OFF_SWITCH)  # Relay + Button 3
     .adds_endpoint(4, device_type=zha.DeviceType.ON_OFF_SWITCH)  # Virtual Button 4
-    .adds_endpoint(5, device_type=zha.DeviceType.ON_OFF_SWITCH)  # Utility
-    .adds_endpoint(21, device_type=zha.DeviceType.ON_OFF_SWITCH)  # Diagnostics
+    .adds_endpoint(5, device_type=zha.DeviceType.ON_OFF_SWITCH)  # Utility (unused)
+    .adds_endpoint(21, device_type=zha.DeviceType.ON_OFF_SWITCH) # Power
 
     # --- Cluster replacements ---------------------------------------
     .adds(Basic, endpoint_id=1)
@@ -83,10 +108,10 @@ class AqaraManuSpecificCluster(XiaomiAqaraE1Cluster):
     
     .adds(Time, endpoint_id=21)
 
-    .replaces(MultistateInput, endpoint_id=1)
-    .replaces(MultistateInput, endpoint_id=2)
-    .replaces(MultistateInput, endpoint_id=3)
-    .replaces(MultistateInput, endpoint_id=4)
+    .replaces(MultistateInputCluster, endpoint_id=1)
+    .replaces(MultistateInputCluster, endpoint_id=2)
+    .replaces(MultistateInputCluster, endpoint_id=3)
+    .replaces(MultistateInputCluster, endpoint_id=4)
 
     .replaces(AqaraManuSpecificCluster, endpoint_id=1)
     .replaces(AqaraManuSpecificCluster, endpoint_id=2)
@@ -94,6 +119,54 @@ class AqaraManuSpecificCluster(XiaomiAqaraE1Cluster):
     .replaces(AqaraManuSpecificCluster, endpoint_id=4)
     .replaces(AqaraManuSpecificCluster, endpoint_id=5)
 
+    # --- LED control -------------------------------------------------
+    # .switch(
+    #     AqaraManuSpecificCluster.AttributeDefs.led_indicator.name,
+    #     AqaraManuSpecificCluster.cluster_id,
+    #     endpoint_id=1,
+    #     translation_key="led_indicator",
+    #     fallback_name="LED indicator",
+    #     off_value=0,
+    #     on_value=1,
+    # )
+    .switch(
+        AqaraManuSpecificCluster.AttributeDefs.flip_led_indicator.name,
+        AqaraManuSpecificCluster.cluster_id,
+        endpoint_id=1,
+        translation_key="flip_led_indicator",
+        fallback_name="Flip LED indicator",
+        off_value=0,
+        on_value=1,
+    )
+
+    # # --- Relay operation mode ----------------------------------------
+    # .enum(
+    #     AqaraManuSpecificCluster.AttributeDefs.operation_mode.name,
+    #     AqaraOperationMode,
+    #     AqaraManuSpecificCluster.cluster_id,
+    #     endpoint_id=1,
+    #     translation_key="mode_relay_1",
+    #     fallback_name="Relay 1 mode",
+    #     unique_id_suffix="relay_1",
+    # )
+    # .enum(
+    #     AqaraManuSpecificCluster.AttributeDefs.operation_mode.name,
+    #     AqaraOperationMode,
+    #     AqaraManuSpecificCluster.cluster_id,
+    #     endpoint_id=2,
+    #     translation_key="mode_relay_2",
+    #     fallback_name="Relay 2 mode",
+    #     unique_id_suffix="relay_2",
+    # )
+    # .enum(
+    #     AqaraManuSpecificCluster.AttributeDefs.operation_mode.name,
+    #     AqaraOperationMode,
+    #     AqaraManuSpecificCluster.cluster_id,
+    #     endpoint_id=3,
+    #     translation_key="mode_relay_3",
+    #     fallback_name="Relay 3 mode",
+    #     unique_id_suffix="relay_3",
+    # )
 
     # --- Relay lock switches (disable physical relay) ----------------
     .switch(

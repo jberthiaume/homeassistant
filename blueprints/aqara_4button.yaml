@@ -1,18 +1,16 @@
 blueprint:
-  name: Aqara H2 - 4 Button Switch (ZHA)
+  name: Aqara H2 4-Button Switch (ZHA)
   description: >
-    Handle all 4 buttons of the Aqara H2 (lumi.switch.agl006).
-    Supports single, double, hold, and release actions per button.
+    Handle all buttons and press types from Aqara H2 (lumi.switch.agl006)
+    using ZHA events (command format: "<button>_<press_type>").
   domain: automation
   input:
-    switch_device:
-      name: Aqara H2 switch
-      description: The Aqara H2 Zigbee device
+    zha_device:
+      name: Aqara H2 device
       selector:
         device:
           integration: zha
 
-    # -------- BUTTON 1 --------
     button_1_single:
       name: Button 1 - Single press
       default: []
@@ -34,7 +32,6 @@ blueprint:
       selector:
         action: {}
 
-    # -------- BUTTON 2 --------
     button_2_single:
       name: Button 2 - Single press
       default: []
@@ -56,7 +53,6 @@ blueprint:
       selector:
         action: {}
 
-    # -------- BUTTON 3 --------
     button_3_single:
       name: Button 3 - Single press
       default: []
@@ -78,7 +74,6 @@ blueprint:
       selector:
         action: {}
 
-    # -------- BUTTON 4 --------
     button_4_single:
       name: Button 4 - Single press
       default: []
@@ -100,131 +95,55 @@ blueprint:
       selector:
         action: {}
 
-mode: restart
+mode: single
 
 trigger:
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: single
-    subtype: button_1
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: double
-    subtype: button_1
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: hold
-    subtype: button_1
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: release
-    subtype: button_1
+  - platform: event
+    event_type: zha_event
+    event_data:
+      device_id: !input zha_device
 
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: single
-    subtype: button_2
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: double
-    subtype: button_2
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: hold
-    subtype: button_2
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: release
-    subtype: button_2
-
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: single
-    subtype: button_3
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: double
-    subtype: button_3
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: hold
-    subtype: button_3
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: release
-    subtype: button_3
-
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: single
-    subtype: button_4
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: double
-    subtype: button_4
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: hold
-    subtype: button_4
-  - platform: device
-    domain: zha
-    device_id: !input switch_device
-    type: release
-    subtype: button_4
+variables:
+  command: "{{ trigger.event.data.command }}"
 
 action:
   - choose:
       # Button 1
-      - conditions: "{{ trigger.subtype == 'button_1' and trigger.type == 'single' }}"
+      - conditions: "{{ command == '1_single' }}"
         sequence: !input button_1_single
-      - conditions: "{{ trigger.subtype == 'button_1' and trigger.type == 'double' }}"
+      - conditions: "{{ command == '1_double' }}"
         sequence: !input button_1_double
-      - conditions: "{{ trigger.subtype == 'button_1' and trigger.type == 'hold' }}"
+      - conditions: "{{ command == '1_hold' }}"
         sequence: !input button_1_hold
-      - conditions: "{{ trigger.subtype == 'button_1' and trigger.type == 'release' }}"
+      - conditions: "{{ command == '1_release' }}"
         sequence: !input button_1_release
 
       # Button 2
-      - conditions: "{{ trigger.subtype == 'button_2' and trigger.type == 'single' }}"
+      - conditions: "{{ command == '2_single' }}"
         sequence: !input button_2_single
-      - conditions: "{{ trigger.subtype == 'button_2' and trigger.type == 'double' }}"
+      - conditions: "{{ command == '2_double' }}"
         sequence: !input button_2_double
-      - conditions: "{{ trigger.subtype == 'button_2' and trigger.type == 'hold' }}"
+      - conditions: "{{ command == '2_hold' }}"
         sequence: !input button_2_hold
-      - conditions: "{{ trigger.subtype == 'button_2' and trigger.type == 'release' }}"
+      - conditions: "{{ command == '2_release' }}"
         sequence: !input button_2_release
 
       # Button 3
-      - conditions: "{{ trigger.subtype == 'button_3' and trigger.type == 'single' }}"
+      - conditions: "{{ command == '3_single' }}"
         sequence: !input button_3_single
-      - conditions: "{{ trigger.subtype == 'button_3' and trigger.type == 'double' }}"
+      - conditions: "{{ command == '3_double' }}"
         sequence: !input button_3_double
-      - conditions: "{{ trigger.subtype == 'button_3' and trigger.type == 'hold' }}"
+      - conditions: "{{ command == '3_hold' }}"
         sequence: !input button_3_hold
-      - conditions: "{{ trigger.subtype == 'button_3' and trigger.type == 'release' }}"
+      - conditions: "{{ command == '3_release' }}"
         sequence: !input button_3_release
 
-      # Button 4
-      - conditions: "{{ trigger.subtype == 'button_4' and trigger.type == 'single' }}"
+      # Button 4 (virtual)
+      - conditions: "{{ command == '4_single' }}"
         sequence: !input button_4_single
-      - conditions: "{{ trigger.subtype == 'button_4' and trigger.type == 'double' }}"
+      - conditions: "{{ command == '4_double' }}"
         sequence: !input button_4_double
-      - conditions: "{{ trigger.subtype == 'button_4' and trigger.type == 'hold' }}"
+      - conditions: "{{ command == '4_hold' }}"
         sequence: !input button_4_hold
-      - conditions: "{{ trigger.subtype == 'button_4' and trigger.type == 'release' }}"
+      - conditions: "{{ command == '4_release' }}"
         sequence: !input button_4_release
