@@ -144,11 +144,7 @@ action:
         {{ none }}
       {% endif %}
     rgb_color: >
-      {% if local_color_mode == 'rgb' %}
-        {{ local_rgb_color }}
-      {% else %}
-        {{ none }}
-      {% endif %}
+      {{ local_rgb_color }}
 - wait_for_trigger:
     platform: state
     entity_id: !input motion_entity
