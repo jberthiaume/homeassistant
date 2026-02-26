@@ -54,30 +54,26 @@ blueprint:
           mode: slider
     color_mode:
       name: Color mode
-      description: Choose whether to use HS color or color temperature
+      description: Choose whether to use RGB color or color temperature
       default: none
       selector:
         select:
           options:
             - none
-            - hs_color
+            - rgb
             - color_temp
-    hs_color:
-      name: HS Color
-      description: Hue and Saturation (only used if Color mode = hs_color)
-      default: [0,0]
+    rgb_color:
+      name: RGB Color
+      description: RGB color
+      default: [255,255,255]
       selector:
-        color_hs:
+        color_rgb:
     color_temp:
       name: Color temperature
-      description: Color temperature in mireds (only used if Color mode = color_temp)
+      description: Color temperature
       default: 0
       selector:
-        number:
-          min: 153
-          max: 500
-          step: 1
-          mode: slider
+        color_temp:
     dim_time:
       name: Dim light
       description: The light will start dim this many seconds before it is turned
@@ -144,7 +140,7 @@ variables:
   local_motion_dim_time: !input dim_time
   local_brightness: !input brightness
   local_color_mode: !input color_mode
-  local_hs_color: !input hs_color
+  local_rgb_color: !input rgb_color
   local_color_temp: !input color_temp
 trigger:
   platform: state
@@ -165,9 +161,9 @@ action:
       {% else %}
         {{ none }}
       {% endif %}
-    hs_color: >
-      {% if local_color_mode == 'hs_color' %}
-        {{ local_hs_color }}
+    rgb_color: >
+      {% if local_color_mode == 'rgb' %}
+        {{ local_rgb_color }}
       {% else %}
         {{ none }}
       {% endif %}
