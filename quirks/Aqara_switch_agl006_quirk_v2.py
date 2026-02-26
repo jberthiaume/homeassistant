@@ -120,15 +120,15 @@ class AqaraManuSpecificCluster(XiaomiAqaraE1Cluster):
     .replaces(AqaraManuSpecificCluster, endpoint_id=5)
 
     # --- LED control -------------------------------------------------
-    # .switch(
-    #     AqaraManuSpecificCluster.AttributeDefs.led_indicator.name,
-    #     AqaraManuSpecificCluster.cluster_id,
-    #     endpoint_id=1,
-    #     translation_key="led_indicator",
-    #     fallback_name="LED indicator",
-    #     off_value=0,
-    #     on_value=1,
-    # )
+    .switch(
+        AqaraManuSpecificCluster.AttributeDefs.led_indicator.name,
+        AqaraManuSpecificCluster.cluster_id,
+        endpoint_id=1,
+        translation_key="led_indicator",
+        fallback_name="LED indicator",
+        off_value=0,
+        on_value=1,
+    )
     .switch(
         AqaraManuSpecificCluster.AttributeDefs.flip_led_indicator.name,
         AqaraManuSpecificCluster.cluster_id,
