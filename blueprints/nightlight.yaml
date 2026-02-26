@@ -143,8 +143,10 @@ action:
       {% else %}
         {{ none }}
       {% endif %}
-    rgb_color: >
-      {{ local_rgb_color }}
+    rgb_color:
+      - "{{ local_rgb_color[0] }}"
+      - "{{ local_rgb_color[1] }}"
+      - "{{ local_rgb_color[2] }}"
 - wait_for_trigger:
     platform: state
     entity_id: !input motion_entity
